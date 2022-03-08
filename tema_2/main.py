@@ -1,5 +1,6 @@
 import numpy as np
 from termcolor import colored
+import prettymatrix
 
 INFO_COLOR = "green"
 WARNING_COLOR = "yellow"
@@ -11,12 +12,22 @@ def pretty_matrix_print(matrix, name):
     '''
     Displays a given matrix.
     '''
-    print(f"\n{name}:")
-
-    for i in range(matrix.shape[0]):
-        for j in range(matrix.shape[1]):
-            print(colored(str(matrix[i][j]), DISPLAY_COLOR), " ", end="")
-        print("")
+    # print("---------------------------")
+    pretty_mat = prettymatrix.matrix_to_string(matrix).split('\n')
+    for i, line in enumerate(pretty_mat):
+        if i == len(pretty_mat) // 2:
+            print(colored(name, WARNING_COLOR) + " = " + colored(line, DISPLAY_COLOR))
+        else:
+            print(' ' * len(f'{name} = ') + colored(line, DISPLAY_COLOR))
+    # for i in range(matrix.shape[0]):
+    #     if i == matrix.shape[0] // 2:
+    #         print(f"{name} =  |\t", end="")
+    #     else:
+    #         print(' ' * len(f'{name} =  ') + '|\t', end="")
+    #     for j in range(matrix.shape[1]):
+    #         print(colored(str(matrix[i][j]), DISPLAY_COLOR), " ", end="")
+    #     print("\t|")
+    # print("---------------------------")
 
 
 def convert_to_triangle_matrix(matrix):
@@ -34,7 +45,7 @@ def get_pivot(matrix, l):
     '''
 
     max_position = l
-    for i in range(l, matrix.shape[1]):
+    for i in range(l, matrix.shape[0]):
         if matrix[max_position][l] < matrix[i][l]:
             max_position = i
 
@@ -53,8 +64,22 @@ def verify_results(a, x, b):
     return np.linalg.norm(res - b)
 
 
-if __name__ == "__main__":
+def second_norm(a, x, b):
+    x_solved = np.linalg.solve(a, b)
+    return np.linalg.norm(x - x_solved)
 
+
+def third_norm(a, x, b):
+    a_inv = np.linalg.inv(a)
+    return np.linalg.norm(x - np.matmul(a_inv, b))
+
+
+def verify_inverse(a, a_inv):
+    lib_a_inv = np.linalg.inv(a)
+    return np.linalg.norm(a_inv - lib_a_inv)
+
+
+def get_input():
     # Read input
     while True:
         try:
@@ -62,6 +87,8 @@ if __name__ == "__main__":
             break
         except:
             print(colored("Input invalid!", ERROR_COLOR))
+            n = 3
+            break
 
     while True:
         try:
@@ -73,6 +100,8 @@ if __name__ == "__main__":
             break
         except:
             print(colored("Input invalid!", ERROR_COLOR))
+            eps = 10 ** (-5)
+            break
 
     # Read matrix from file
     filepath = input(colored("Calea catre fisier (default ./matrice.txt): ", INFO_COLOR))
@@ -87,11 +116,11 @@ if __name__ == "__main__":
                 a_init[i][j] = buffer[j]
 
     # Display the matrix to make sure it's working properly
-    pretty_matrix_print(a_init, "a_init")
+    pretty_matrix_print(a_init, "A_init")
 
     # Calculate the determinant
     a_init_det = np.linalg.det(a_init)
-    print("Determinatul matricei: ", a_init_det)
+    # print("Determinatul matricei: ", a_init_det)
 
     if (a_init_det == 0):
         print(colored("Determinantul nu poate fi 0. Programul se va opri...", WARNING_COLOR))
@@ -111,12 +140,10 @@ if __name__ == "__main__":
 
     pretty_matrix_print(b_init, "b_init")
 
-    print("---------------------------")
+    return n, eps, a_init, b_init
 
-    # Copy the initial values
-    a = np.copy(a_init)
-    b = np.copy(b_init)
 
+def gaussian_elimination(n, eps, a, b):
     # Start the Gauss algorithm
     l = 0
     i0 = get_pivot(a, l)
@@ -127,14 +154,13 @@ if __name__ == "__main__":
     if abs(a[l][l]) < eps:
         print(colored("Pivotul este nul!", WARNING_COLOR))
         exit(0)
-    print("\n-----\n")
-    pretty_matrix_print(a, "a")
-    pretty_matrix_print(b, "b")
+    # print("\n-----\n")
+    # pretty_matrix_print(a, "a")
+    # pretty_matrix_print(b, "b")
 
     while l < n - 1 and abs(a[l][l]) > eps:
         for i in range(l + 1, n):
             f = a[i][l] / a[l][l]
-            print("f = ", f)
             for j in range(l + 1, n):
                 a[i][j] = a[i][j] - f * a[l][j]
             b[i][0] = b[i][0] - f * b[l][0]
@@ -148,19 +174,19 @@ if __name__ == "__main__":
         if abs(a[l][l]) < eps:
             print(colored("Pivotul este nul!", WARNING_COLOR))
             exit(0)
-        print("\n-----\n")
-        pretty_matrix_print(a, "a")
-        pretty_matrix_print(b, "b")
+        # print("\n-----\n")
+        # pretty_matrix_print(a, "a")
+        # pretty_matrix_print(b, "b")
 
     # Check the determinat of the newly created matrix
     if abs(a[l][l]) <= eps:
         print(colored("Matrice singulara", WARNING_COLOR))
         exit(0)
-
-    # Convert the matrix to a triangular shape and display it
     convert_to_triangle_matrix(a)
-    pretty_matrix_print(a, "a dupa convert")
+    return a, b
 
+
+def inverse_substitution(a, b, n):
     # Calculate x vector
     x = np.empty((n, 1))
     x[n - 1][0] = b[n - 1][0] / a[n - 1][n - 1]
@@ -173,13 +199,77 @@ if __name__ == "__main__":
             denominator -= a[i][j] * x[j][0]
 
         x[i][0] = denominator / a[i][i]
+    return x
+
+
+def compute_inverse_matrix(a, n, eps):
+    identity_matrix = np.identity(a.shape[0])
+    a_ext = np.concatenate((a, identity_matrix), axis=1)
+    number_of_cols = a_ext.shape[1]
+
+    l = 0
+    i0 = get_pivot(a_ext, l)
+    swap_lines(a_ext, i0, l)
+
+    # Checking the value of the pivot
+    if abs(a[l][l]) < eps:
+        print(colored("Pivotul este nul!", WARNING_COLOR))
+        exit(0)
+
+    while l < n - 1 and abs(a_ext[l][l]) > eps:
+        for i in range(l + 1, n):
+            if abs(a_ext[l][l]) < eps:
+                print(colored("Pivotul este nul!", WARNING_COLOR))
+                exit(0)
+            a_ext[i][l] /= a_ext[l][l]
+            for j in range(l + 1, number_of_cols):
+                a_ext[i][j] -= (a_ext[i][l] * a_ext[l][j])
+        l += 1
+        i0 = get_pivot(a_ext, l)
+        swap_lines(a_ext, i0, l)
+        # Checking the value of the pivot
+        if abs(a_ext[l][l]) < eps:
+            print(colored("Pivotul este nul!", WARNING_COLOR))
+            exit(0)
+
+    if abs(a_ext[l][l]) <= eps:
+        print(colored("Matrice singulara", WARNING_COLOR))
+        exit(0)
+    convert_to_triangle_matrix(a_ext)
+    a_r, i_r = np.split(a_ext, 2, axis=1)
+    inv = np.zeros((n, n))
+    for j in range(n):
+        b = np.reshape(i_r[:, j], (3, 1))
+        x = np.reshape(inverse_substitution(a_r, b, n), (3, 1))
+        inv[:, [j]] = x
+    return inv
+
+
+if __name__ == "__main__":
+    n, eps, a_init, b_init = get_input()
+
+    # Copy the initial values
+    a = np.copy(a_init)
+    b = np.copy(b_init)
+
+    a, b = gaussian_elimination(n, eps, a, b)
+
+    x = inverse_substitution(a, b, n)
+
+    a_inv = compute_inverse_matrix(a_init, n, eps)
 
     # Print results
-    print("\n---------------------------------")
-    pretty_matrix_print(a, "a")
-    pretty_matrix_print(b, "b")
+    print('\n------  Rezultate dupa eliminare gaussiana si substitutie inversa  ----')
+    pretty_matrix_print(a, "A(dupa eliminare gaussiana)")
+    pretty_matrix_print(b, "b(dupa eliminare gaussiana)")
     pretty_matrix_print(x, "x")
-
-    print('\n----------------------------------')
-    print('Euclidean norm of Ax - b')
-    print(verify_results(a_init, x, b_init))
+    print(colored('\nNorma I:\t', INFO_COLOR) + colored('||A_init×x - b_init||', ERROR_COLOR))
+    print(colored('↪ ', INFO_COLOR) + colored(str(verify_results(a_init, x, b_init)), DISPLAY_COLOR) + '\n')
+    print(colored('Norma II:\t', INFO_COLOR) + colored('||x - x_lib||', ERROR_COLOR))
+    print(colored('↪ ', INFO_COLOR) + colored(str(second_norm(a, x, b)), DISPLAY_COLOR) + '\n')
+    print(colored('Norma III:\t', INFO_COLOR) + colored('||x - A_lib_inv×b_init||', ERROR_COLOR))
+    print(colored('↪ ', INFO_COLOR) + colored(str(third_norm(a, x, b)), DISPLAY_COLOR) + '\n')
+    print('\n------  Rezultate dupa calcularea inversei  ----')
+    pretty_matrix_print(a_inv, 'A_inv')
+    print(colored('\nNorma IV:\t', INFO_COLOR) + colored('||A_inv - A_lib_inv||', ERROR_COLOR))
+    print(colored('↪ ', INFO_COLOR) + colored(str(verify_inverse(a, a_inv)), DISPLAY_COLOR) + '\n')
