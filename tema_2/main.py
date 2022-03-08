@@ -48,6 +48,11 @@ def swap_lines(matrix, l1, l2):
         matrix[l2][i] = aux
 
 
+def verify_results(a, x, b):
+    res = np.matmul(a, x)
+    return np.linalg.norm(res - b)
+
+
 if __name__ == "__main__":
 
     # Read input
@@ -174,3 +179,7 @@ if __name__ == "__main__":
     pretty_matrix_print(a, "a")
     pretty_matrix_print(b, "b")
     pretty_matrix_print(x, "x")
+
+    print('\n----------------------------------')
+    print('Euclidean norm of Ax - b')
+    print(verify_results(a_init, x, b_init))
