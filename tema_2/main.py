@@ -59,7 +59,7 @@ def swap_lines(matrix, l1, l2):
         matrix[l2][i] = aux
 
 
-def verify_results(a, x, b):
+def first_norm(a, x, b):
     res = np.matmul(a, x)
     return np.linalg.norm(res - b)
 
@@ -74,7 +74,7 @@ def third_norm(a, x, b):
     return np.linalg.norm(x - np.matmul(a_inv, b))
 
 
-def verify_inverse(a, a_inv):
+def fourth_norm(a, a_inv):
     lib_a_inv = np.linalg.inv(a)
     return np.linalg.norm(a_inv - lib_a_inv)
 
@@ -264,7 +264,7 @@ if __name__ == "__main__":
     pretty_matrix_print(b, "b(dupa eliminare gaussiana)")
     pretty_matrix_print(x, "x")
     print(colored('\nNorma I:\t', INFO_COLOR) + colored('||A_init×x - b_init||', ERROR_COLOR))
-    print(colored('↪ ', INFO_COLOR) + colored(str(verify_results(a_init, x, b_init)), DISPLAY_COLOR) + '\n')
+    print(colored('↪ ', INFO_COLOR) + colored(str(first_norm(a_init, x, b_init)), DISPLAY_COLOR) + '\n')
     print(colored('Norma II:\t', INFO_COLOR) + colored('||x - x_lib||', ERROR_COLOR))
     print(colored('↪ ', INFO_COLOR) + colored(str(second_norm(a, x, b)), DISPLAY_COLOR) + '\n')
     print(colored('Norma III:\t', INFO_COLOR) + colored('||x - A_lib_inv×b_init||', ERROR_COLOR))
@@ -272,4 +272,4 @@ if __name__ == "__main__":
     print('\n------  Rezultate dupa calcularea inversei  ----')
     pretty_matrix_print(a_inv, 'A_inv')
     print(colored('\nNorma IV:\t', INFO_COLOR) + colored('||A_inv - A_lib_inv||', ERROR_COLOR))
-    print(colored('↪ ', INFO_COLOR) + colored(str(verify_inverse(a, a_inv)), DISPLAY_COLOR) + '\n')
+    print(colored('↪ ', INFO_COLOR) + colored(str(fourth_norm(a_init, a_inv)), DISPLAY_COLOR) + '\n')
