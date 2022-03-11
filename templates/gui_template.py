@@ -74,6 +74,7 @@ if __name__ == "__main__":
     '''
 
     information_text.insert(tk.END, default_msg)
+    information_text.insert(tk.END, colored('test', 'red'))
 
     # Start the window
     main_window.mainloop()
