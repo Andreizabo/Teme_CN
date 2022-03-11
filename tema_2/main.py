@@ -46,7 +46,7 @@ def get_pivot(matrix, l):
 
     max_position = l
     for i in range(l, matrix.shape[0]):
-        if matrix[max_position][l] < matrix[i][l]:
+        if abs(matrix[max_position][l]) < abs(matrix[i][l]):
             max_position = i
 
     return max_position
@@ -191,7 +191,7 @@ def inverse_substitution(a, b, n):
     x = np.empty((n, 1))
     x[n - 1][0] = b[n - 1][0] / a[n - 1][n - 1]
 
-    # Work backwords
+    # Work backwards
     for i in range(n - 2, -1, -1):
         # Calculate the denominator of the equation
         denominator = b[i][0]
@@ -239,8 +239,8 @@ def compute_inverse_matrix(a, n, eps):
     a_r, i_r = np.split(a_ext, 2, axis=1)
     inv = np.zeros((n, n))
     for j in range(n):
-        b = np.reshape(i_r[:, j], (3, 1))
-        x = np.reshape(inverse_substitution(a_r, b, n), (3, 1))
+        b = np.reshape(i_r[:, j], (n, 1))
+        x = np.reshape(inverse_substitution(a_r, b, n), (n, 1))
         inv[:, [j]] = x
     return inv
 
@@ -259,7 +259,7 @@ if __name__ == "__main__":
     a_inv = compute_inverse_matrix(a_init, n, eps)
 
     # Print results
-    print('\n------  Rezultate dupa eliminare gaussiana si substitutie inversa  ----')
+    print('\n------  Rezultate dupa eliminare gaussiana si substitutie inversa  ------')
     pretty_matrix_print(a, "A(dupa eliminare gaussiana)")
     pretty_matrix_print(b, "b(dupa eliminare gaussiana)")
     pretty_matrix_print(x, "x")
@@ -269,7 +269,7 @@ if __name__ == "__main__":
     print(colored('↪ ', INFO_COLOR) + colored(str(second_norm(a, x, b)), DISPLAY_COLOR) + '\n')
     print(colored('Norma III:\t', INFO_COLOR) + colored('||x - A_lib_inv×b_init||', ERROR_COLOR))
     print(colored('↪ ', INFO_COLOR) + colored(str(third_norm(a, x, b)), DISPLAY_COLOR) + '\n')
-    print('\n------  Rezultate dupa calcularea inversei  ----')
+    print('\n------  Rezultate dupa calcularea inversei  ------')
     pretty_matrix_print(a_inv, 'A_inv')
     print(colored('\nNorma IV:\t', INFO_COLOR) + colored('||A_inv - A_lib_inv||', ERROR_COLOR))
     print(colored('↪ ', INFO_COLOR) + colored(str(fourth_norm(a_init, a_inv)), DISPLAY_COLOR) + '\n')
