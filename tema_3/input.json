@@ -1,0 +1,6 @@
+{
+    "a" : "a.txt",
+    "b" : "b.txt",
+    "verify_sum" : "a_plus_b.txt",
+    "verify_prod" : "a_ori_a.txt"
+}
