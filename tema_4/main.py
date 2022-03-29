@@ -20,6 +20,7 @@ class EqSystem:
         self.b = []
         self.x = []
         self.a_diag = []
+        self.is_calculated = False
 
     def set_system(self, n, a, b):
         self.n = n
@@ -47,6 +48,8 @@ class EqSystem:
         k = 0
         dif = 10 ** 8 - 1
 
+        self.is_calculated = True
+
         while eps < dif < 10 ** 8 and k < max_k:
             x_p = x_c
             x_c = self.jacobi(x_p)
@@ -57,6 +60,31 @@ class EqSystem:
             self.x = x_c
             return k
         else:
+            return -1
+
+    def find_sol_gui(self, log_func, textbox):
+        max_k = 10000
+        x_c = self.x
+        k = 0
+        dif = 10 ** 8 - 1
+
+        self.is_calculated = True
+
+        log_func(textbox, "[", "purple", place_endline=False)
+        while eps < dif < 10 ** 8 and k < max_k:
+            x_p = x_c
+            x_c = self.jacobi(x_p)
+            dif = get_vect_dif(x_c, x_p)
+            k += 1
+            # print(f'Done {k}')
+            log_func(textbox, "=", "purple", place_endline=False)
+            textbox.update()
+        if dif < eps:
+            self.x = x_c
+            log_func(textbox, "]", "purple")
+            return k
+        else:
+            log_func(textbox, "]", "purple")
             return -1
 
     def verify_sol(self):
