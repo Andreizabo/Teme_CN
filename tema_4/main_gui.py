@@ -114,9 +114,7 @@ def read_input():
         "b5" : "b_5.txt",
         "p": 5
     }
-
     Also assigns global variable INPUT.
-
     @returns : nothing
     '''
 
@@ -190,7 +188,6 @@ def approximate_solution():
     '''
     Callback method for "Approximate solution" button.
     It calls for the backend implementation of the Jacobi algorithm.
-
     @returns : nothing
     '''
 
@@ -205,16 +202,16 @@ def approximate_solution():
     iter_count = SYSTEM.find_sol_gui(log_entry, information_text)
 
     # Display results
-    log_entry(information_text, f"[INFO] Iteration count: {iter_count}", INFO_COLOR)
+    log_entry(information_text, f"[INFO] Iteration count: {iter_count * (1 if iter_count > 0 else -1)}", INFO_COLOR)
 
     display_system(SYSTEM, information_text)
+    return iter_count
 
 
 def verify_solution():
     '''
     Callback method for "Verify solution" button.
     It calls the backend implementation of the verification algorithm, displaying useful messages if something goes wrong.
-
     @returns: nothing
     '''
 
@@ -235,7 +232,6 @@ def verify_solution():
 def run_in_gui():
     '''
     Callback method for "Run in GUI" button.
-
     @returns: nothing
     '''
 
@@ -246,9 +242,12 @@ def run_in_gui():
     log_entry(information_text, "[INFO] Running main program...", INFO_COLOR)
     information_text.update()
 
-    read_input()
-    approximate_solution()
-    verify_solution()
+    #read_input()
+    iter_count = approximate_solution()
+    if iter_count > 0:
+        verify_solution()
+    else:
+        log_entry(information_text, f"[INFO] Divergence after {-iter_count} iterations.", INFO_COLOR)
 
     log_entry(information_text, "[INFO] Finished running main program.", INFO_COLOR)
 
@@ -256,7 +255,6 @@ def run_in_gui():
 def log_entry(text_object: tk.Text, message: str, foreground_color: str = "black", background_color: str = "white", place_endline=True):
     '''
     Adds a new entry to the logging window.
-
     @param text_object: Tk Text object which will get colored.
     @param message: string to be appended to the existing information in the logging window.
     @param foreground_color: the color of the word, as a string.
