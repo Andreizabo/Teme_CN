@@ -17,7 +17,8 @@ INPUT = {}
 # Current selected system of equations
 SYSTEM = None
 
-def display_system(system : main.EqSystem, textbox: tk.Text):
+
+def display_system(system : main.EqSystem, textbox : tk.Text):
     
     log_entry(textbox, " ")
 
@@ -94,14 +95,23 @@ def display_system(system : main.EqSystem, textbox: tk.Text):
     
     log_entry(textbox, " ")
 
+
 def read_input():
     '''
     Callback method for "Read input" button.
     
     JSON Example for Tema 4:
     {
-        "a" : "a_1.txt",
-        "b" : "b_1.txt",
+        "a1" : "a_1.txt",
+        "b1" : "b_1.txt",
+        "a2" : "a_2.txt",
+        "b2" : "b_2.txt",
+        "a3" : "a_3.txt",
+        "b3" : "b_3.txt",
+        "a4" : "a_4.txt",
+        "b4" : "b_4.txt",
+        "a5" : "a_5.txt",
+        "b5" : "b_5.txt",
         "p": 5
     }
 
@@ -110,7 +120,7 @@ def read_input():
     @returns : nothing
     '''
 
-    global INPUT, SYSTEM
+    global INPUT, SYSTEM, frame_middle
 
     log_entry(information_text, "[INFO] Trying to parse './input.json'...", INFO_COLOR)
     try:
@@ -124,11 +134,57 @@ def read_input():
 
     INPUT = _dict
 
-    # Get the system class
-    log_entry(information_text, f"[INFO] Parsing from \"{INPUT['a']}\" and \"{INPUT['b']}\"", INFO_COLOR)
-    information_text.update()
+    aux_labels = []
 
-    SYSTEM = main.read_system(INPUT['a'], INPUT['b'])
+    aux_labels.append(tk.Label(frame_middle, text='What input to read : '))
+    aux_labels[0].grid(row=0, column=0)
+
+    current_selected_input = 1
+    log_entry(information_text, f"[INFO] Current selected input: {current_selected_input}", foreground_color=INFO_COLOR)
+
+    def change_selected_input_1():
+        global current_selected_input
+        current_selected_input = 1
+        log_entry(information_text, "[INFO] Selected input 1.", INFO_COLOR)
+    def change_selected_input_2():
+        global current_selected_input
+        current_selected_input = 2
+        log_entry(information_text, "[INFO] Selected input 2.", INFO_COLOR)
+    def change_selected_input_3():
+        global current_selected_input
+        current_selected_input = 3
+        log_entry(information_text, "[INFO] Selected input 3.", INFO_COLOR)
+    def change_selected_input_4():
+        global current_selected_input
+        current_selected_input = 4
+        log_entry(information_text, "[INFO] Selected input 4.", INFO_COLOR)
+    def change_selected_input_5():
+        global current_selected_input
+        current_selected_input = 5
+        log_entry(information_text, "[INFO] Selected input 5.", INFO_COLOR)
+
+    def clear_aux_labels():
+        global SYSTEM, current_selected_input
+        for i in range(len(aux_labels)):
+            aux_labels[i].destroy()
+        # Get the system class
+        log_entry(information_text, f"[INFO] Parsing from \"{INPUT[f'a{current_selected_input}']}\" and \"{INPUT[f'b{current_selected_input}']}\"", INFO_COLOR)
+        information_text.update()
+
+        SYSTEM = main.read_system(INPUT[f'a{current_selected_input}'], INPUT[f'b{current_selected_input}'])
+
+
+    aux_labels.append(tk.Button(frame_middle, text='1', command=change_selected_input_1, pady=5))
+    aux_labels.append(tk.Button(frame_middle, text='2', command=change_selected_input_2, pady=5))
+    aux_labels.append(tk.Button(frame_middle, text='3', command=change_selected_input_3, pady=5))
+    aux_labels.append(tk.Button(frame_middle, text='4', command=change_selected_input_4, pady=5))
+    aux_labels.append(tk.Button(frame_middle, text='5', command=change_selected_input_5, pady=5))
+
+    for i in range(1, 6, 1):
+        aux_labels[i].grid(row=0, column=i)
+
+    aux_labels.append(tk.Button(frame_middle, text='Continue', command=clear_aux_labels))
+    aux_labels[-1].grid(row=0, column=6)
 
 def approximate_solution():
     '''
@@ -152,6 +208,7 @@ def approximate_solution():
     log_entry(information_text, f"[INFO] Iteration count: {iter_count}", INFO_COLOR)
 
     display_system(SYSTEM, information_text)
+
 
 def verify_solution():
     '''
@@ -207,6 +264,9 @@ def log_entry(text_object: tk.Text, message: str, foreground_color: str = "black
     @param place_endline: whether or not to place a endline after the message. Defaults to True.
     '''
 
+    # Turn on the text object (in order to write info to it)
+    text_object.config(state='normal')
+
     end = '\n' if place_endline else ''
     text_object.insert(tk.END, message + end)
 
@@ -234,8 +294,11 @@ def log_entry(text_object: tk.Text, message: str, foreground_color: str = "black
         text_object.tag_config(random_tag_name, foreground=foreground_color, background=background_color)
 
     # Move the scrollbar to the newly added line
-    information_text.see(tk.END)
+    text_object.see(tk.END)
 
+    
+    # Turn on the text object (in order to write info to it)
+    text_object.config(state='disabled')
 
 if __name__ == "__main__":
 
@@ -248,6 +311,10 @@ if __name__ == "__main__":
     # Top frame (used for control buttons)
     frame_top = tk.Frame(main_window)
     frame_top.pack(side=tk.TOP)
+
+    # Middle frame (used for dynamic buttons)
+    frame_middle = tk.Frame(main_window)
+    frame_middle.pack(side=tk.TOP)
 
     # Read input button
     read_input_button = tk.Button(frame_top, text="Read input", command=read_input, padx=10)
@@ -263,7 +330,7 @@ if __name__ == "__main__":
 
     # Run from GUI button
     run_from_gui_button = tk.Button(frame_top, text="Run in GUI", command=run_in_gui, padx=10)
-    run_from_gui_button.grid(row=0, column=4)
+    run_from_gui_button.grid(row=0, column=3)
 
     # Bottom frame (used as an alternative for command line prints)
     frame_bottom = tk.Frame(main_window)
@@ -273,7 +340,7 @@ if __name__ == "__main__":
     information_scrollbar = tk.Scrollbar(frame_bottom)
     information_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    information_text = tk.Text(frame_bottom)
+    information_text = tk.Text(frame_bottom, state='disabled')
     information_text.pack(side=tk.LEFT, fill=tk.Y)
 
     information_scrollbar.config(command=information_text.yview)
