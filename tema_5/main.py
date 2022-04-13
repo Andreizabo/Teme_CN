@@ -10,22 +10,37 @@ WARNING_COLOR = "yellow"
 ERROR_COLOR = "red"
 DEBUG_COLOR = "blue"
 
-eps = 10 ** -6
+eps = 10 ** -7
+
+INPUT = {'matrix_path': 'matrix1.txt'}
 
 
 class Homework5:
     def __init__(self):
         self.eps = 10 ** -7
         self.k_max = 100
+        self.A = None
+        self.A_init = None
 
-    def indices(self, A: np.matrix):
+    def read_matrix(self):
+        global INPUT
+        self.A = []
+        with open(INPUT['matrix_path'], 'r') as rd:
+            ln = rd.readline()
+            while ln:
+                self.A.append([float(element) for element in ln.split(' ')])
+                ln = rd.readline()
+        self.A = np.array(self.A)
+        self.A_init = self.A.copy()
+
+    def indices(self):
         max = 0
         p = -1
         q = -1
-        for j in range(len(A)):
+        for j in range(len(self.A)):
             for i in range(j):
-                if max < abs(A[i][j]):
-                    max = abs(A[i][j])
+                if max < abs(self.A[i][j]):
+                    max = abs(self.A[i][j])
                     p = i
                     q = j
         return p, q
@@ -39,7 +54,7 @@ class Homework5:
 
         return value
 
-    def jacobi_algorithm(self, n: int, A: np.ndarray):
+    def jacobi_algorithm(self, n: int):
         '''
         Something
         '''
@@ -47,9 +62,9 @@ class Homework5:
         k = 0
         U = np.identity(n)
 
-        p, q = self.indices(A)
+        p, q = self.indices()
 
-        alpha = (A[p][p] - A[q][q]) / (2 * A[p][q])
+        alpha = (self.A[p][p] - self.A[q][q]) / (2 * self.A[p][q])
         t = -alpha + (1 if alpha >= 0 else -1) * ((alpha ** 2 + 1) ** (1 / 2))
         c = 1 / ((1 + t ** 2) ** (1 / 2))
         s = t / ((1 + t ** 2) ** (1 / 2))
@@ -57,34 +72,37 @@ class Homework5:
         # Print status
         # print(f'''p = {p}, q = {q}\nc = {c}, s = {s}, t = {t}\n{A}''')
 
-        while not self.is_diagonal(A) and k <= self.k_max:
+        while not self.is_diagonal(self.A) and k <= self.k_max:
             print(colored(f'[STEP] {k}', 'yellow'))
 
             for j in range(n):
                 if j != p and j != q:
-                    A[p][j] = self.check_value(c * A[p][j] + s * A[q][j])
+                    self.A[p][j] = self.check_value(c * self.A[p][j] + s * self.A[q][j])
 
             for j in range(n):
                 if j != p and j != q:
-                    A[q][j] = A[j][q] = self.check_value(-s * A[j][p] + c * A[q][j])
+                    self.A[q][j] = self.A[j][q] = self.check_value(-s * self.A[j][p] + c * self.A[q][j])
 
             for j in range(n):
                 if j != p and j != q:
-                    A[j][p] = self.check_value(A[p][j])
+                    self.A[j][p] = self.check_value(self.A[p][j])
 
-            A[p][p] = self.check_value(A[p][p] + t * A[p][q])
-            A[q][q] = self.check_value(A[q][q] - t * A[p][q])
-            A[p][q] = 0
-            A[q][p] = 0
+            self.A[p][p] = self.check_value(self.A[p][p] + t * self.A[p][q])
+            self.A[q][q] = self.check_value(self.A[q][q] - t * self.A[p][q])
+            self.A[p][q] = 0
+            self.A[q][p] = 0
 
             U_orig = np.copy(U)
             for i in range(n):
                 U[i][p] = self.check_value(c * U[i][p] + s * U[i][q])
                 U[i][q] = self.check_value(-s * U_orig[i][p] + c * U[i][q])
 
-            p, q = self.indices(A)
+            p, q = self.indices()
 
-            alpha = (A[p][p] - A[q][q]) / (2 * A[p][q])
+            if p == -1 and q == -1:
+                break
+
+            alpha = (self.A[p][p] - self.A[q][q]) / (2 * self.A[p][q])
             t = -alpha + (1 if alpha >= 0 else -1) * ((alpha ** 2 + 1) ** (1 / 2))
             c = 1 / ((1 + t ** 2) ** (1 / 2))
             s = t / ((1 + t ** 2) ** (1 / 2))
@@ -121,28 +139,42 @@ class Homework5:
         return s
 
 
-if __name__ == "__main__":
-    # Part 1
-    h = Homework5()
-    A = np.array([[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [1.0, 1.0, 1.0]])
-    A_init = A.copy()
-    print(A)
-    U = h.jacobi_algorithm(3, A)
-    print(U)
-    print(h.check_value(np.linalg.norm(np.matmul(A_init, U) - np.matmul(U, A))))
+def part_1():
+    result = ''
+    result += 'A matrix : \n' + str(h.A) + '\n \n'
+    U = h.jacobi_algorithm(len(h.A))
+    result += 'U matrix : \n' + str(U) + '\n \n'
+    result += 'First norm : ' + str(h.check_value(np.linalg.norm(np.matmul(h.A_init, U) - np.matmul(U, h.A)))) + '\n'
+    result += '---------------------------------------------\n \n'
+    return result
 
-    # Part 2
-    eigen_values, eigen_vectors = np.linalg.eigh(A_init)
-    print(eigen_values)
-    print(eigen_vectors)
-    print(h.check_value(h.verify_sum(np.diag(A), eigen_values)))
+def part_2():
+    result = ''
+    eigen_values, eigen_vectors = np.linalg.eigh(h.A_init)
+    result += 'Eigen values : \n' + str(eigen_values) + '\n \n'
+    result += 'Eigen vectors : \n' + str(eigen_vectors) + '\n \n'
+    result += 'Second norm : ' + str(h.check_value(h.verify_sum(np.diag(h.A), eigen_values))) + '\n'
+    result += '---------------------------------------------\n \n'
+    return result
 
-    # Part 3
+def part_3():
     # https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html
-    u, s, vh = np.linalg.svd(A_init)
+    result = ''
+    u, s, v_transpose = np.linalg.svd(h.A_init)
+    s_i = np.array([[0 if i != j else (0 if h.check_value(s[j]) == 0 else 1 / s[j]) for i in range(len(s))] for j in range(len(s))])
+    A_I = np.matmul(np.matmul(np.transpose(v_transpose), s_i), np.transpose(u))
+    A_J = np.matmul(np.linalg.pinv(np.matmul(np.transpose(h.A_init), h.A_init)), np.transpose(h.A_init))
 
-    print(f'Valori singulare: {s}')
-    print(f'Rangul matricei: {np.count_nonzero(s[abs(s) >= h.eps])}')
-    print(f'Numar de conditionare: {np.max(s) / np.linalg.pinv(A_init)}')
+    result += f'Singular values : {s}\n \n'
+    result += f'Matrix rank : {np.count_nonzero(s[abs(s) >= h.eps])}\n \n'
+    result += f'Conditioning number : {np.max(s) / np.min(list(filter(lambda x: abs(x) > h.eps, s)))}\n'
+    result += f'Moore-Penrose matrix (A_I matrix) : {A_I}'
+    result += f'A_J matrix: {A_J}'
+    result += f'Third norm: {h.check_value(np.linalg.norm(A_I - A_J))}'
+    result += '---------------------------------------------\n \n'
+    return result
 
 
+# Global values
+h = Homework5()
+h.read_matrix()
