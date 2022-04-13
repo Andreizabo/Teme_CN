@@ -19,8 +19,7 @@ def pretty_matrix_print(matrix, name):
     '''
     Displays a given matrix.
     '''
-    # print("---------------------------")
-    pretty_mat = prettymatrix.matrix_to_string(matrix).split('\n')
+    pretty_mat = prettymatrix.matrix_to_string(np.array([[float(str(f'{matrix[i][j]:.4f}')) for j in range(len(matrix[i]))] for i in range(len(matrix))])).split('\n')
     res = ''
     for i, line in enumerate(pretty_mat):
         if i == len(pretty_mat) // 2:
@@ -167,9 +166,9 @@ def part_1():
 def part_2():
     result = ''
     eigen_values, eigen_vectors = np.linalg.eigh(h.A_init)
-    result += 'Eigen values : \n' + str(eigen_values) + '\n \n'
-    result += 'Eigen vectors : \n' + str(eigen_vectors) + '\n \n'
-    result += 'Second norm : ' + str(h.check_value(h.verify_sum(np.diag(h.A), eigen_values))) + '\n'
+    result += 'Eigen values = ' + str(eigen_values) + '\n \n'
+    result += pretty_matrix_print(eigen_vectors, 'Eigen vectors') + ' '
+    result += '\nSecond norm : ' + str(h.check_value(h.verify_sum(np.diag(h.A), eigen_values))) + '\n'
     result += '---------------------------------------------\n \n'
     return result
 
