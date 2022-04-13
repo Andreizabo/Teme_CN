@@ -2,7 +2,7 @@ import sys
 
 from termcolor import colored
 import numpy as np
-import math
+import prettymatrix
 
 # Default colors
 INFO_COLOR = "green"
@@ -13,6 +13,21 @@ DEBUG_COLOR = "blue"
 eps = 10 ** -7
 
 INPUT = {'matrix_path': 'matrix1.txt'}
+
+
+def pretty_matrix_print(matrix, name):
+    '''
+    Displays a given matrix.
+    '''
+    # print("---------------------------")
+    pretty_mat = prettymatrix.matrix_to_string(matrix).split('\n')
+    res = ''
+    for i, line in enumerate(pretty_mat):
+        if i == len(pretty_mat) // 2:
+            res += name + " = " + line + '\n'
+        else:
+            res += ' ' * len(f'{name} = ') + line + '\n'
+    return res
 
 
 class Homework5:
@@ -141,12 +156,13 @@ class Homework5:
 
 def part_1():
     result = ''
-    result += 'A matrix : \n' + str(h.A) + '\n \n'
+    result += pretty_matrix_print(h.A, "A") + ' '
     U = h.jacobi_algorithm(len(h.A))
-    result += 'U matrix : \n' + str(U) + '\n \n'
-    result += 'First norm : ' + str(h.check_value(np.linalg.norm(np.matmul(h.A_init, U) - np.matmul(U, h.A)))) + '\n'
+    result += '\n' + pretty_matrix_print(U, "U") + ' '
+    result += '\nFirst norm : ' + str(h.check_value(np.linalg.norm(np.matmul(h.A_init, U) - np.matmul(U, h.A)))) + '\n'
     result += '---------------------------------------------\n \n'
     return result
+
 
 def part_2():
     result = ''
@@ -157,20 +173,22 @@ def part_2():
     result += '---------------------------------------------\n \n'
     return result
 
+
 def part_3():
     # https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html
     result = ''
     u, s, v_transpose = np.linalg.svd(h.A_init)
-    s_i = np.array([[0 if i != j else (0 if h.check_value(s[j]) == 0 else 1 / s[j]) for i in range(len(s))] for j in range(len(s))])
+    s_i = np.array([[0 if i != j else (0 if h.check_value(s[j]) == 0 else 1 / s[j]) for i in range(len(s))] for j in
+                    range(len(s))])
     A_I = np.matmul(np.matmul(np.transpose(v_transpose), s_i), np.transpose(u))
     A_J = np.matmul(np.linalg.pinv(np.matmul(np.transpose(h.A_init), h.A_init)), np.transpose(h.A_init))
 
     result += f'Singular values : {s}\n \n'
     result += f'Matrix rank : {np.count_nonzero(s[abs(s) >= h.eps])}\n \n'
     result += f'Conditioning number : {np.max(s) / np.min(list(filter(lambda x: abs(x) > h.eps, s)))}\n'
-    result += f'Moore-Penrose matrix (A_I matrix) : {A_I}'
-    result += f'A_J matrix: {A_J}'
-    result += f'Third norm: {h.check_value(np.linalg.norm(A_I - A_J))}'
+    result += pretty_matrix_print(A_I, "A_I") + ' '
+    result += '\n' + pretty_matrix_print(A_J, "A_J") + ' '
+    result += f'\nThird norm: {h.check_value(np.linalg.norm(A_I - A_J))}\n'
     result += '---------------------------------------------\n \n'
     return result
 

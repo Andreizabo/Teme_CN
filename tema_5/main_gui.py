@@ -79,7 +79,7 @@ def part_3():
 
     result = main.part_3()
     for line in result.splitlines():
-        log_entry(information_text, line, foreground_color='cyan')
+        log_entry(information_text, line, foreground_color='red')
 
 
 def log_entry(text_object: tk.Text, message: str, foreground_color: str = "black", background_color: str = "white", place_endline=True):
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     # Main window configuration
     main_window = tk.Tk()
     main_window.title("Tema 5")
-    main_window.geometry("600x300")
+    main_window.geometry("800x400")
     main_window.resizable(0, 0)
 
     # Top frame (used for control buttons)
