@@ -49,7 +49,12 @@ def part_1():
     
     result = main.part_1()
     for line in result.splitlines():
-        log_entry(information_text, line, foreground_color='blue')
+        if ':' in line:
+            lines = line.split(':')
+            log_entry(information_text, lines[0] + ' : ', foreground_color='green', place_endline=False)
+            log_entry(information_text, lines[1], foreground_color='blue')
+        else:
+            log_entry(information_text, line, foreground_color='blue')
     
 
 def part_2():
@@ -64,7 +69,12 @@ def part_2():
 
     result = main.part_2()
     for line in result.splitlines():
-        log_entry(information_text, line, foreground_color='magenta')
+        if ':' in line:
+            lines = line.split(':')
+            log_entry(information_text, lines[0] + ' : ', foreground_color='green', place_endline=False)
+            log_entry(information_text, lines[1], foreground_color='blue')
+        else:
+            log_entry(information_text, line, foreground_color='blue')
 
 
 def part_3():
@@ -79,7 +89,12 @@ def part_3():
 
     result = main.part_3()
     for line in result.splitlines():
-        log_entry(information_text, line, foreground_color='cyan')
+        if ':' in line:
+            lines = line.split(':')
+            log_entry(information_text, lines[0] + ' : ', foreground_color='green', place_endline=False)
+            log_entry(information_text, lines[1], foreground_color='blue')
+        else:
+            log_entry(information_text, line, foreground_color='blue')
 
 
 def log_entry(text_object: tk.Text, message: str, foreground_color: str = "black", background_color: str = "white", place_endline=True):
