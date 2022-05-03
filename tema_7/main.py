@@ -63,15 +63,33 @@ class PolynomeSolver:
             print(f'Original xk = {xk_orig}')
 
         if abs(delta_x) < self.eps:
-            print(colored(f'Solution (approx) : {xk}', 'green'))
-            print(colored(f'Actual solutions : {self.solutions}', 'cyan'))
+            if debug_mode:
+                print(colored(f'Solution (approx) : {xk}', 'green'))
+                print(colored(f'Actual solutions : {self.solutions}', 'cyan'))
             output_str = f'Solution (approx) : {xk}\nActual solutions : {self.solutions}'
             return xk, output_str
         else:
-            print(colored(f'Divergent, try with another x0 (result : {xk})', 'red'))
+            if debug_mode:
+                print(colored(f'Divergent, try with another x0 (result : {xk})', 'red'))
             output_str = f'Divergent, try with another x0 (result : {xk})'
             return None, output_str
 
+    def find_all_solutions(self):
+        sols = []
+        while len(sols) != len(self.solutions):
+            result = None
+            while result == None:
+                result, output_str = self.solve()
+            
+            exists = False
+            for i in range(len(sols)):
+                if abs(sols[i] - result) < 0.0001:
+                    exists = True
+            if abs(self.P(result)) > self.eps:
+                continue
+            if not exists:
+                sols.append(result)
+        return sols
 
 ps1 = PolynomeSolver('polynome1.txt')
 ps2 = PolynomeSolver('polynome2.txt')
@@ -83,6 +101,11 @@ if __name__ == "__main__":
     ps2.solve()
     ps3.solve()
     ps4.solve()
+
+    print(ps1.find_all_solutions(), ps1.solutions)
+    print(ps3.find_all_solutions(), ps3.solutions)
+    print(ps4.find_all_solutions(), ps4.solutions)
+    print(ps2.find_all_solutions(), ps2.solutions)
 
 # For GUI
 if __name__ == "main":
