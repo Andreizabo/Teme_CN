@@ -56,9 +56,9 @@ class FunctionMinimizer:
     def compare_results(self):
         g1_x, g1_k = self.find_x(self.g1)
         g2_x, g2_k = self.find_x(self.g2)
-        print(f'Using G1 we found x = {g1_x} in {g1_k} steps.')
-        print(f'Using G2 we found x = {g2_x} in {g2_k} steps.')
-        return f'Using G1 we found x = {g1_x} in {g1_k} steps.\nUsing G2 we found x = {g2_x} in {g2_k} steps.'
+        print(f'Using G1 we found x* = {g1_x} in {g1_k} steps.')
+        print(f'Using G2 we found x* = {g2_x} in {g2_k} steps.')
+        return f'Using G1 we found x* = {g1_x} in {g1_k} steps.\nUsing G2 we found x* = {g2_x} in {g2_k} steps.'
 
 if __name__ == "__main__":
     fm = FunctionMinimizer()
