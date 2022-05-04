@@ -15,8 +15,8 @@ def function3(x):
 
 
 class FunctionMinimizer:
-    def __init__(self):
-        self.function = function3
+    def __init__(self, func=function1):
+        self.function = func
         self.eps = 10 ** -6
         self.h = 10 ** -6
         self.max_k = 10000
@@ -58,7 +58,15 @@ class FunctionMinimizer:
         g2_x, g2_k = self.find_x(self.g2)
         print(f'Using G1 we found x = {g1_x} in {g1_k} steps.')
         print(f'Using G2 we found x = {g2_x} in {g2_k} steps.')
+        return f'Using G1 we found x = {g1_x} in {g1_k} steps.\nUsing G2 we found x = {g2_x} in {g2_k} steps.'
 
+if __name__ == "__main__":
+    fm = FunctionMinimizer()
+    fm.compare_results()
 
-fm = FunctionMinimizer()
-fm.compare_results()
+if __name__ == "main":
+    f1 = FunctionMinimizer(function1)
+    f2 = FunctionMinimizer(function2)
+    f3 = FunctionMinimizer(function3)
+
+    selected_function = f1
