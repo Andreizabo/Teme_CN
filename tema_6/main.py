@@ -112,6 +112,10 @@ class FunctionApproximator:
     def calculate_polynom(self, x):
         return sum(self.a[i] * (x ** i) for i in range(len(self.a)))[0]
 
+    def verify_polynom(self):
+        for index in range(self.n):
+            print(f'{self.xi[index][1]}\t{self.calculate_polynom(self.xi[index][0])}\t{(self.xi[index][1] - self.calculate_polynom(self.xi[index][0]))}')
+
     def pick_random_x(self):
         random_index = random.randint(0, self.n)
         return random.uniform(self.xi[random_index][0], self.xi[random_index + 1][0])
